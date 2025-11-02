@@ -9,7 +9,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 const express = require('express')
-// Le package 'cors' est omis (gestion manuelle ci-dessous).
+// Le package 'cors' est omis.
 
 const db = require('./models')
 const authRoutes = require('./routes/auth')
@@ -22,16 +22,12 @@ const app = express()
 const port = process.env.PORT || 3000
 
 // ----------------------------------------------------
-// 2. CONFIGURATION CORS MANUELLE (Solution Finale)
+// 2. CONFIGURATION CORS MANUELLE
 // ----------------------------------------------------
 app.use((req, res, next) => {
-  // Autorise TOUTES les origines (*). C'est la ligne la plus importante.
+  // Autorise TOUTES les origines (*).
   res.header('Access-Control-Allow-Origin', '*')
-
-  // Autorise les méthodes HTTP
   res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE')
-
-  // Autorise les en-têtes
   res.header(
     'Access-Control-Allow-Headers',
     'Origin, X-Requested-With, Content-Type, Accept, Authorization'
@@ -51,7 +47,7 @@ app.use((req, res, next) => {
 
 app.use(express.json())
 
-// Tente de se connecter à la base de données
+// Tente de se connecter à la base de données et de synchroniser
 db.sequelize
   .sync({ alter: true })
   .then(() => {
@@ -69,6 +65,27 @@ db.sequelize
     })
   })
   .catch((err) => {
-    console.error('Erreur de synchronisation de la base de données :', err)
-    process.exit(1)
+    // 🔥 MODIFICATION CRITIQUE :
+    // Au lieu de planter (process.exit(1)), on enregistre l'erreur
+    // et on essaie quand même de démarrer le serveur Express.
+    console.error(
+      'Erreur de synchronisation de la base de données - Démarrage forcé du serveur :',
+      err
+    )
+
+    // On doit quand même démarrer le serveur si la DB est l'unique raison de l'échec.
+    // Cette étape est vitale pour que Railway arrête de renvoyer des 502/connection refused.
+    // Si la DB est en panne, les requêtes échoueront plus tard avec des 500, mais l'app sera joignable.
+
+    app.use('/api/auth', authRoutes)
+    app.use('/api/articles', articlesRoutes)
+    app.use('/api/upload', uploadRoutes)
+    app.use('/api/users', userRoutes)
+    app.use('/api', commentRoutes)
+
+    app.listen(port, () => {
+      console.log(
+        `Serveur démarré AVEC une erreur de DB sur http://localhost:${port}`
+      )
+    })
   })
