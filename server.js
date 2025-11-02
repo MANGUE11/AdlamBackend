@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// 1. Chargement conditionnel des variables d'environnement
+// 1. Chargement Conditionnel des Variables d'Environnement
 // ----------------------------------------------------
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config()
@@ -21,11 +21,11 @@ const app = express()
 const port = process.env.PORT || 8080
 
 // ----------------------------------------------------
-// 2. Configuration CORS (Vercel + local)
+// 2. CONFIGURATION CORS (pour Vercel + local)
 // ----------------------------------------------------
 const allowedOrigins = [
-  'https://adlam-frontend.vercel.app', // front en prod
-  'http://localhost:3000', // dev local
+  'https://adlam-frontend.vercel.app', // ton front en prod
+  'http://localhost:3000', // utile pour le dev local
 ]
 
 app.use(
@@ -33,7 +33,9 @@ app.use(
     origin: (origin, callback) => {
       // Autorise les requêtes sans header Origin (Postman, etc.)
       if (!origin) return callback(null, true)
-      if (allowedOrigins.includes(origin)) return callback(null, true)
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true)
+      }
       return callback(new Error('Not allowed by CORS'))
     },
     credentials: true,
@@ -48,9 +50,6 @@ app.use(
   })
 )
 
-// Réponse automatique pour les requêtes OPTIONS (preflight)
-app.options('*', cors())
-
 // ----------------------------------------------------
 // 3. Middlewares standards
 // ----------------------------------------------------
@@ -63,29 +62,33 @@ db.sequelize
   .sync({ alter: true })
   .then(() => {
     console.log('✅ Connexion à la base de données réussie et synchronisée.')
-    startServer()
+
+    // Routes principales (après connexion à la DB)
+    app.use('/api/auth', authRoutes)
+    app.use('/api/articles', articlesRoutes)
+    app.use('/api/upload', uploadRoutes)
+    app.use('/api/users', userRoutes)
+    app.use('/api', commentRoutes)
+
+    // Lancement du serveur
+    app.listen(port, () => {
+      console.log(`🚀 Serveur en cours d'exécution sur le port ${port}`)
+    })
   })
   .catch((err) => {
     console.error(
       '⚠️ Erreur de synchronisation de la base de données. Le serveur démarre quand même :',
       err.message
     )
-    startServer()
-  })
 
-// ----------------------------------------------------
-// 5. Fonction de démarrage du serveur
-// ----------------------------------------------------
-function startServer() {
-  // Routes principales
-  app.use('/api/auth', authRoutes)
-  app.use('/api/articles', articlesRoutes)
-  app.use('/api/upload', uploadRoutes)
-  app.use('/api/users', userRoutes)
-  app.use('/api', commentRoutes)
+    // Démarre quand même le serveur pour éviter un 502 Railway
+    app.use('/api/auth', authRoutes)
+    app.use('/api/articles', articlesRoutes)
+    app.use('/api/upload', uploadRoutes)
+    app.use('/api/users', userRoutes)
+    app.use('/api', commentRoutes)
 
-  // Écoute sur toutes les interfaces pour Railway ou local
-  app.listen(port, '0.0.0.0', () => {
-    console.log(`🚀 Serveur en cours d'exécution sur le port ${port}`)
+    app.listen(port, () => {
+      console.log(`🚀 Serveur démarré avec une erreur DB sur le port ${port}`)
+    })
   })
-}
