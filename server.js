@@ -89,7 +89,7 @@ db.sequelize
     app.use('/api/users', userRoutes)
     app.use('/api', commentRoutes)
 
-    app.listen(port, () => {
-      console.log(`🚀 Serveur démarré avec une erreur DB sur le port ${port}`)
+    app.listen(port, '0.0.0.0', () => {
+      console.log(`✅ Serveur en ligne sur le port ${port}`)
     })
   })
