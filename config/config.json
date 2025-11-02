@@ -18,8 +18,8 @@
     "username": "root",
     "password": "qgyEZqbIXveEmoiYxzuEzuhIyLLngSkv",
     "database": "railway",
-    "host": "shuttle.proxy.rlwy.net",
+    "host": "mysql.railway.internal",
     "dialect": "mysql",
-    "port": 35651
+    "port": 3306
   }
 }
