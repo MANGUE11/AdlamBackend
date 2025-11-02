@@ -77,4 +77,15 @@ router.post('/login', async (req, res) => {
   }
 })
 
+router.get('/info', async (req, res) => {
+  try {
+    res.status(200).json({ message: 'Bonjour Masy !' })
+  } catch (error) {
+    console.error(error)
+    res
+      .status(500)
+      .json({ message: "Erreur lors de la récupération de l'article." })
+  }
+})
+
 module.exports = router

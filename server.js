@@ -26,6 +26,7 @@ const port = process.env.PORT || 8080
 const allowedOrigins = [
   'https://adlam-frontend.vercel.app', // ton front en prod
   'http://localhost:3000', // utile pour le dev local
+  '*',
 ]
 
 app.use(
