@@ -9,8 +9,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 const express = require('express')
-// Le package 'cors' est désormais omis car nous injectons les en-têtes manuellement.
-// Assurez-vous d'avoir bien fait 'npm uninstall cors' et un 'git add .'
+// Le package 'cors' est omis (gestion manuelle ci-dessous).
 
 const db = require('./models')
 const authRoutes = require('./routes/auth')
@@ -23,17 +22,16 @@ const app = express()
 const port = process.env.PORT || 3000
 
 // ----------------------------------------------------
-// 2. CONFIGURATION CORS MANUELLE UNIVERSELLE (La solution la plus robuste)
-// Cette solution envoie l'en-tête Access-Control-Allow-Origin: * pour autoriser Vercel.
+// 2. CONFIGURATION CORS MANUELLE (Solution Finale)
 // ----------------------------------------------------
 app.use((req, res, next) => {
-  // Autorise TOUTES les origines (*).
+  // Autorise TOUTES les origines (*). C'est la ligne la plus importante.
   res.header('Access-Control-Allow-Origin', '*')
 
   // Autorise les méthodes HTTP
   res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE')
 
-  // Autorise les en-têtes (critique pour les tokens d'authentification)
+  // Autorise les en-têtes
   res.header(
     'Access-Control-Allow-Headers',
     'Origin, X-Requested-With, Content-Type, Accept, Authorization'
@@ -41,7 +39,7 @@ app.use((req, res, next) => {
 
   // Gestion des requêtes Preflight (OPTIONS)
   if (req.method === 'OPTIONS') {
-    res.sendStatus(204) // Répond OK sans contenu pour le navigateur
+    res.sendStatus(204)
   } else {
     next()
   }
