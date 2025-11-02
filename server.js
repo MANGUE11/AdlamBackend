@@ -48,6 +48,7 @@ app.use(
       'Content-Type',
       'Accept',
       'Authorization',
+      'x-auth-token',
     ],
   })
 )
