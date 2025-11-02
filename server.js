@@ -23,6 +23,10 @@ const allowedOrigins = [
   // Ajoutez ici d'autres domaines si nécessaire
 ]
 
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config()
+}
+
 app.use(
   cors({
     origin: function (origin, callback) {
