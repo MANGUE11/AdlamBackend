@@ -15,11 +15,11 @@
     "dialect": "mysql"
   },
   "production": {
-    "username": "root",
-    "password": "qgyEZqbIXveEmoiYxzuEzuhIyLLngSkv",
-    "database": "railway",
-    "host": "mysql.railway.internal",
-    "dialect": "mysql",
-    "port": 3306
+    "username": "${MYSQLUSER}",
+    "password": "${MYSQLPASSWORD}",
+    "database": "${MYSQLDATABASE}",
+    "host": "${MYSQLHOST}",
+    "port": "${MYSQLPORT}",
+    "dialect": "mysql"
   }
 }
