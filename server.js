@@ -12,8 +12,6 @@ if (process.env.NODE_ENV !== 'production') {
 
 const express = require('express')
 const cors = require('cors')
-// L'import du module dotenv n'est plus nécessaire car nous utilisons require('dotenv').config() ci-dessus.
-// const dotenv = require('dotenv')
 
 const db = require('./models')
 const authRoutes = require('./routes/auth')
@@ -27,32 +25,18 @@ const app = express()
 const port = process.env.PORT || 3000
 
 // ----------------------------------------------------
-// 2. Configuration CORS (Le Fix)
+// 2. Configuration CORS (TEST UNIVERSEL)
+// Nous utilisons une configuration simple pour autoriser toutes les origines (*)
+// afin d'éliminer l'erreur CORS. Si cette erreur persiste, le problème n'est pas CORS.
 // ----------------------------------------------------
-
-// ATTENTION: Assurez-vous que l'URL ne contient PAS de slash à la fin (ex: 'https://adlam-frontend.vercel.app')
-const allowedOrigins = [
-  'https://adlam-frontend.vercel.app', // <-- Corrigé (sans le slash final)
-  'http://localhost:5173',
-  // Ajoutez ici d'autres domaines si nécessaire
-]
-
-const corsOptions = {
-  origin: (origin, callback) => {
-    // Si l'origine est autorisée OU s'il n'y a pas d'origine (requêtes internes, outils comme Postman)
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true)
-    } else {
-      // Refuse si l'origine n'est pas autorisée
-      callback(new Error('Not allowed by CORS'))
-    }
-  },
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  credentials: true,
-  optionsSuccessStatus: 204, // Bonne pratique pour les requêtes OPTIONS
-}
-
-app.use(cors(corsOptions))
+app.use(
+  cors({
+    origin: '*', // Permet toutes les origines (https://adlam-frontend.vercel.app inclus)
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+    optionsSuccessStatus: 204,
+  })
+)
 
 // ----------------------------------------------------
 // 3. Middlewares
