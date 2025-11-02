@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// 1. Chargement Conditionnel des Variables d'Environnement
+// 1. Chargement conditionnel des variables d'environnement
 // ----------------------------------------------------
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config()
@@ -21,7 +21,7 @@ const app = express()
 const port = process.env.PORT || 8080
 
 // ----------------------------------------------------
-// 2. CONFIGURATION CORS (pour Vercel + local)
+// 2. Configuration CORS (Vercel + local)
 // ----------------------------------------------------
 const allowedOrigins = [
   'https://adlam-frontend.vercel.app', // front en prod
@@ -74,7 +74,7 @@ db.sequelize
   })
 
 // ----------------------------------------------------
-// 5. Fonction de démarrage serveur
+// 5. Fonction de démarrage du serveur
 // ----------------------------------------------------
 function startServer() {
   // Routes principales
@@ -84,7 +84,7 @@ function startServer() {
   app.use('/api/users', userRoutes)
   app.use('/api', commentRoutes)
 
-  // Écoute sur toutes les interfaces pour Railway
+  // Écoute sur toutes les interfaces pour Railway ou local
   app.listen(port, '0.0.0.0', () => {
     console.log(`🚀 Serveur en cours d'exécution sur le port ${port}`)
   })
