@@ -19,7 +19,7 @@ const userRoutes = require('./routes/userRoutes')
 const commentRoutes = require('./routes/commentRoutes')
 
 const app = express()
-const port = process.env.PORT || 3000
+const port = process.env.PORT || 8080
 
 // ----------------------------------------------------
 // 2. CONFIGURATION CORS MANUELLE
@@ -61,7 +61,8 @@ db.sequelize
     app.use('/api', commentRoutes)
 
     app.listen(port, () => {
-      console.log(`Serveur en cours d'exécution sur http://localhost:${port}`)
+      // console.log(`Serveur en cours d'exécution sur http://localhost:${port}`)
+      console.log(`✅ Serveur en cours d'exécution sur le port ${port}`)
     })
   })
   .catch((err) => {
