@@ -27,6 +27,7 @@ const allowedOrigins = [
   'https://adlam-frontend.vercel.app', // ton front en prod
   'http://localhost:5173',
   'http://localhost:3000', // utile pour le dev local
+  'https://akweeyo.com', // ajoute cette ligne
   '*',
 ]
 
