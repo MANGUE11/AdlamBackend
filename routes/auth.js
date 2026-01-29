@@ -109,20 +109,19 @@ router.post('/forgot-password', async (req, res) => {
 
     // Configurer l'envoi
     const transporter = nodemailer.createTransport({
-      service: 'gmail', // Utiliser le raccourci 'gmail' aide souvent Nodemailer
-      host: 'smtp.gmail.com',
-      port: 465,
-      secure: true, // Doit être true pour le port 465
+      service: 'gmail', // Utilise le réglage prédéfini pour Gmail
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
       },
-      // Paramètres de sécurité pour éviter le Timeout
+      pool: true, // Utilise un pool de connexions pour éviter les timeouts
+      maxConnections: 1,
+      maxMessages: Infinity,
+      socketTimeout: 20000, // 20 secondes
+      connectionTimeout: 20000, // 20 secondes
       tls: {
         rejectUnauthorized: false,
       },
-      connectionTimeout: 10000, // 10 secondes
-      greetingTimeout: 5000,
     })
 
     // Test de connexion au démarrage
