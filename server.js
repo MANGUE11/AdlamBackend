@@ -1,6 +1,17 @@
 // ----------------------------------------------------
 // 1. Chargement Conditionnel des Variables d'Environnement
 // ----------------------------------------------------
+
+require('dotenv').config()
+
+console.log('=== VARIABLES ENV ===')
+console.log('DB_HOST:', process.env.DB_HOST)
+console.log('DB_USER:', process.env.DB_USER)
+console.log('DB_NAME:', process.env.DB_NAME)
+console.log('DB_PORT:', process.env.DB_PORT)
+console.log('EMAIL_HOST:', process.env.EMAIL_HOST)
+console.log('=====================')
+
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config()
 }
@@ -18,7 +29,7 @@ const commentRoutes = require('./routes/commentRoutes')
 
 // Initialisation de l'application Express
 const app = express()
-const port = process.env.PORT || 8080
+const port = process.env.PORT || 5000
 
 // ----------------------------------------------------
 // 2. CONFIGURATION CORS (pour Vercel + local)
@@ -50,7 +61,7 @@ app.use(
       'Accept',
       'Authorization',
     ],
-  })
+  }),
 )
 
 // ----------------------------------------------------
@@ -81,7 +92,7 @@ db.sequelize
   .catch((err) => {
     console.error(
       '⚠️ Erreur de synchronisation de la base de données. Le serveur démarre quand même :',
-      err.message
+      err.message,
     )
 
     // Démarre quand même le serveur pour éviter un 502 Railway

@@ -32,11 +32,19 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING, // 'admin' ou 'visitor'
         defaultValue: 'visitor',
       },
+      resetPasswordToken: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      resetPasswordExpires: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
     },
     {
       sequelize,
       modelName: 'User',
-    }
+    },
   )
   return User
 }
