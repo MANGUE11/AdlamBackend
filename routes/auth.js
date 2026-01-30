@@ -90,6 +90,9 @@ router.get('/info', async (req, res) => {
 })
 
 // --- MOT DE PASSE OUBLIÉ (ÉTAPE 1 : ENVOI DU MAIL) ---
+
+const { Resend } = require('resend')
+
 router.post('/forgot-password', async (req, res) => {
   try {
     const { email } = req.body
@@ -97,48 +100,20 @@ router.post('/forgot-password', async (req, res) => {
     if (!user)
       return res.status(404).json({ message: 'Utilisateur non trouvé.' })
 
-    // Générer un token de 20 caractères
     const token = crypto.randomBytes(20).toString('hex')
-    const expires = Date.now() + 3600000 // Valable 1 heure
+    const expires = Date.now() + 3600000
 
-    // Sauvegarder dans la DB
     await user.update({
       resetPasswordToken: token,
       resetPasswordExpires: expires,
     })
 
-    // Configurer l'envoi
-    const transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 587,
-      secure: false, // Obligatoire pour le port 465
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-      // Options critiques pour éviter le timeout sur Railway
-      tls: {
-        rejectUnauthorized: false, // Ne bloque pas si le certificat est mal reconnu
-        minVersion: 'TLSv1.2',
-      },
-      connectionTimeout: 20000, // On donne 20 secondes
-      greetingTimeout: 20000,
-      socketTimeout: 20000,
-    })
-
-    // Test de connexion au démarrage
-    transporter.verify(function (error, success) {
-      if (error) {
-        console.log('Erreur configuration email :', error)
-      } else {
-        console.log('Serveur prêt à envoyer des emails ✅')
-      }
-    })
-
+    // Utiliser Resend
+    const resend = new Resend(process.env.RESEND_API_KEY)
     const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${token}`
 
-    await transporter.sendMail({
-      from: 'akweeyo@gmail.com',
+    await resend.emails.send({
+      from: 'noreply@akweeyo.com',
       to: user.email,
       subject: 'Réinitialisation de mot de passe',
       html: `<p>Vous avez demandé une réinitialisation. Cliquez ici : <a href="${resetUrl}">${resetUrl}</a></p>`,
@@ -150,6 +125,67 @@ router.post('/forgot-password', async (req, res) => {
     res.status(500).json({ message: "Erreur lors de l'envoi de l'email." })
   }
 })
+
+// router.post('/forgot-password', async (req, res) => {
+//   try {
+//     const { email } = req.body
+//     const user = await db.User.findOne({ where: { email } })
+//     if (!user)
+//       return res.status(404).json({ message: 'Utilisateur non trouvé.' })
+
+//     // Générer un token de 20 caractères
+//     const token = crypto.randomBytes(20).toString('hex')
+//     const expires = Date.now() + 3600000 // Valable 1 heure
+
+//     // Sauvegarder dans la DB
+//     await user.update({
+//       resetPasswordToken: token,
+//       resetPasswordExpires: expires,
+//     })
+
+//     // Configurer l'envoi
+//     const transporter = nodemailer.createTransport({
+//       host: 'smtp.gmail.com',
+//       port: 587,
+//       secure: false, // Obligatoire pour le port 465
+//       auth: {
+//         user: process.env.EMAIL_USER,
+//         pass: process.env.EMAIL_PASS,
+//       },
+//       // Options critiques pour éviter le timeout sur Railway
+//       tls: {
+//         rejectUnauthorized: false, // Ne bloque pas si le certificat est mal reconnu
+//         minVersion: 'TLSv1.2',
+//       },
+//       connectionTimeout: 20000, // On donne 20 secondes
+//       greetingTimeout: 20000,
+//       socketTimeout: 20000,
+//     })
+
+//     // Test de connexion au démarrage
+//     transporter.verify(function (error, success) {
+//       if (error) {
+//         console.log('Erreur configuration email :', error)
+//       } else {
+//         console.log('Serveur prêt à envoyer des emails ✅')
+//       }
+//     })
+
+//     const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${token}`
+
+//     await transporter.sendMail({
+//       from: 'akweeyo@gmail.com',
+//       to: user.email,
+//       subject: 'Réinitialisation de mot de passe',
+//       html: `<p>Vous avez demandé une réinitialisation. Cliquez ici : <a href="${resetUrl}">${resetUrl}</a></p>`,
+//     })
+
+//     res.status(200).json({ message: 'Email envoyé avec succès.' })
+//   } catch (error) {
+//     console.error(error)
+//     res.status(500).json({ message: "Erreur lors de l'envoi de l'email." })
+//   }
+// })
 
 // --- RÉINITIALISATION (ÉTAPE 2 : MISE À JOUR DU MOT DE PASSE) ---
 router.post('/reset-password/:token', async (req, res) => {
